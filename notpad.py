@@ -16,6 +16,8 @@ with open("anahtar.key", "rb") as anahtarDosyasi:
 # Sifreleme Ac
 fernet = Fernet(gizliAnahtar)
 
+aktifDosya = "notlar.txt"
+
 # Uygulama Basligi ve Boyutu
 app.title("YagYz Notpad")
 app.geometry("400x500")
@@ -37,17 +39,47 @@ def girisKontrol():
 def notEkrani():
     global notAlani
     global kaydetmeButon
+    global aktifDosyaEtiketi
     
+    # Giris Sayfasini Temizleme
     baslik.destroy()
     sifreKutu.destroy()
     bildirimEtiketi.destroy()
     girisButonu.destroy() 
     
+    # Ust Menu
+    dosyaSekme = ctk.CTkFrame(master=app, fg_color="transparent")
+    dosyaSekme.pack(pady=5, fill="x", padx=20)
+    
+    yeniDosyaButonu = ctk.CTkButton(master=dosyaSekme, text="+ Yeni Dosya", width=100, command=yeniDosyaOlustur)
+    yeniDosyaButonu.pack(side="left", padx=5)
+    
+    aktifDosyaEtiketi = ctk.CTkLabel(master=dosyaSekme, text=f"Şu anki dosya: {aktifDosya}")
+    aktifDosyaEtiketi.pack(side="right", padx=5)
+    
+    # Not Yazma Alani
     notAlani = ctk.CTkTextbox(master=app, width=350, height=300)
     notAlani.pack(pady=20)
     
+    # Not Kaydetme Alani
     kaydetmeButon = ctk.CTkButton(master=app, text="Notlari Kaydet", command=notKaydet)
     kaydetmeButon.pack(pady=10)
+    
+def yeniDosyaOlustur():
+    global aktifDosya
+    
+    dialog = ctk.CTkInputDialog(text="Yeni dosya adını girin (Örn: gunluk2):", title="Yeni Dosya")
+    yeniIsim = dialog.get_input()
+    
+    if yeniIsim:
+        if not yeniIsim.endswith(".txt"):
+            yeniIsim += ".txt"
+        
+        aktifDosya = yeniIsim
+        aktifDosyaEtiketi.configure(text=f"Şu anki dosya: {aktifDosya}")
+        
+        notAlani.delete("0.0", "end")
+        notKaydet()
 
 # Notlari Dosyaya Yazdirma Fonksiyonu
 def notKaydet():
@@ -56,7 +88,7 @@ def notKaydet():
     byteNotlar = yazilanNotlar.encode("utf-8")
     sifreliNotlar= fernet.encrypt(byteNotlar)
     
-    with open("notlar.txt", "wb") as dosya:
+    with open(aktifDosya, "wb") as dosya:
         dosya.write(sifreliNotlar)
     
     kaydetmeButon.configure(text="Basariyla Kaydedildi!", text_color="green")
@@ -65,7 +97,7 @@ def notKaydet():
 # Eski Notlari Yukleme
 def notyukle():
     try:
-        with open("notlar.txt", "rb") as dosya:
+        with open(aktifDosya, "rb") as dosya:
             sifreliOkunan = dosya.read()
             
         cozulmusByte = fernet.decrypt(sifreliOkunan)
