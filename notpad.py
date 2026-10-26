@@ -35,35 +35,62 @@ def girisKontrol():
     else:
         bildirimEtiketi.configure(text="Sifre Hatali! Tekrar Deneyiniz.", text_color="red")
         
+# Giris Sayfasi Olustur
+def girisEkrani():
+    global baslik, sifreKutu, bildirimEtiketi, girisButonu
+
+    for widget in app.winfo_children():
+        widget.destroy()
+
+    baslik = ctk.CTkLabel(master=app, text="YagYz Notpad`e Hosgeldiniz", font=("Helvetica", 24, "bold"))
+    baslik.pack(pady=40)
+
+    sifreKutu = ctk.CTkEntry(master=app, placeholder_text="Sifre Giriniz...", show="*", width=200)
+    sifreKutu.pack(pady=20)
+    sifreKutu.bind("<Return>", lambda event: girisKontrol())
+
+    bildirimEtiketi = ctk.CTkLabel(master=app, text="", font=("Helvetica", 12))
+    bildirimEtiketi.pack(pady=10)
+
+    girisButonu = ctk.CTkButton(master=app, text="Giris Yap", command=girisKontrol)
+    girisButonu.pack(pady=20)
+
+# Cikis Yap ve Giris Ekranina Don
+def cikisYap():
+    girisEkrani()
+
 # Giris Basarili Oldugunda Calisan Not Yazma Penceresi
 def notEkrani():
     global notAlani
     global kaydetmeButon
     global aktifDosyaEtiketi
-    
-    # Giris Sayfasini Temizleme
-    baslik.destroy()
-    sifreKutu.destroy()
-    bildirimEtiketi.destroy()
-    girisButonu.destroy() 
-    
+
+    for widget in app.winfo_children():
+        widget.destroy()
+
     # Ust Menu
     dosyaSekme = ctk.CTkFrame(master=app, fg_color="transparent")
     dosyaSekme.pack(pady=5, fill="x", padx=20)
-    
+
     yeniDosyaButonu = ctk.CTkButton(master=dosyaSekme, text="+ Yeni Dosya", width=100, command=yeniDosyaOlustur)
     yeniDosyaButonu.pack(side="left", padx=5)
-    
+
     aktifDosyaEtiketi = ctk.CTkLabel(master=dosyaSekme, text=f"Şu anki dosya: {aktifDosya}")
     aktifDosyaEtiketi.pack(side="right", padx=5)
-    
+
     # Not Yazma Alani
     notAlani = ctk.CTkTextbox(master=app, width=350, height=300)
     notAlani.pack(pady=20)
-    
-    # Not Kaydetme Alani
-    kaydetmeButon = ctk.CTkButton(master=app, text="Notlari Kaydet", command=notKaydet)
-    kaydetmeButon.pack(pady=10)
+
+    # Alt Buton Alani
+    altMenu = ctk.CTkFrame(master=app, fg_color="transparent")
+    altMenu.pack(pady=10)
+
+    kaydetmeButon = ctk.CTkButton(master=altMenu, text="Notlari Kaydet", command=notKaydet, width=150)
+    kaydetmeButon.pack(side="left", padx=5)
+
+    cikisButon = ctk.CTkButton(master=altMenu, text="Çıkış Yap", command=cikisYap, width=100, fg_color="#C93B2B", hover_color="#A8281A")
+    cikisButon.pack(side="left", padx=5)
     
 def yeniDosyaOlustur():
     global aktifDosya
@@ -107,18 +134,8 @@ def notyukle():
     except FileNotFoundError:
         pass
 
-# Giris Sayfasi
-baslik = ctk.CTkLabel(master=app, text="YagYz Notpad`e Hosgeldiniz", font=("Helvetica", 24, "bold"))
-baslik.pack(pady=40)
-
-sifreKutu = ctk.CTkEntry(master=app, placeholder_text="Sifre Giriniz...", show="*", width=200)
-sifreKutu.pack(pady=20)
-
-bildirimEtiketi = ctk.CTkLabel(master=app, text="", font=("Helvetica", 12))
-bildirimEtiketi.pack(pady=10)
-
-girisButonu = ctk.CTkButton(master=app, text="Giris Yap", command=girisKontrol)
-girisButonu.pack(pady=20)
+# Uygulamayi Giris Ekraniyla Baslat
+girisEkrani()
 
 # Ana Dongu - En altta kalmali
 app.mainloop()
